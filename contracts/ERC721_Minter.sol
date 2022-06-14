@@ -13,9 +13,10 @@ contract ERC721NFTMinter is Ownable, ERC721URIStorage{
  
   using Counters for Counters.Counter;
   Counters.Counter private _tokenIds;
-
   
-   constructor(address _marketplaceAddress) ERC721("Metaverse NFTs", "META-NFT"){
+  // We are creating the constructor to take Name of the NFT and the symbol of the NFT 
+  // That are passing through the constructor. 
+   constructor(string memory _name, string memory _symbol) ERC721(_name, _symbol){
     // nextTokenId is initialized to 1, since starting at 0 leads to higher gas cost for the first minter
     //TOKENS IDS starts from 1(not 0)
     _tokenIds.increment();
@@ -28,11 +29,12 @@ contract ERC721NFTMinter is Ownable, ERC721URIStorage{
   function mintNFT(string memory _tokenURI) public returns(uint256){
     require(msg.sender != address(0), "ERC721NFTMinter#mintNFT: ZERO_ADDRESS");
     uint256 newItemId = _tokenIds.current();
-     _tokenIds.increment();
+     
     // mint function to mint the tokens for the sender
     _safeMint(address(msg.sender), newItemId);
     // sent the token URI for the metadata
     _setTokenURI(newItemId, _tokenURI);
+    _tokenIds.increment();
     return newItemId;
   }
 
@@ -53,3 +55,7 @@ contract ERC721NFTMinter is Ownable, ERC721URIStorage{
 
 
 }
+
+
+
+
