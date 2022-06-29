@@ -15,7 +15,7 @@ module.exports = {
     shine:{
       url:JSON_RPC,
       accounts:[PRIVATEKEY],
-    gasPrice: 3000000000,
+      gasPrice: 4000000000,
       saveDeployments: true,
     }
   }

@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
-contract MyERC20 is ERC20 {
+contract SUSDC is ERC20 {
     constructor(
        string memory _tokenName,
        string memory _ticker,

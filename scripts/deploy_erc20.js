@@ -4,9 +4,10 @@ const hre = require("hardhat");
 
 const main = async() => {
 
-  const MyERC20 = await hre.ethers.getContractFactory("MyERC20")
-  const erc20 = await MyERC20.deploy('SUSD Coin', 'SUSDC', 100000000000  * 10**18)
-  await erc20.deployed()
+  const ERC20StableCoin = await hre.ethers.getContractFactory("SUSDC")
+  const erc20 = await ERC20StableCoin.deploy('SUSD Coin', 'SUSDC', '100000000000000000000000000')
+  const tx = await erc20.deployed()
+  
   console.log(`ERC20 contract Address: ${erc20.address}`)
 }
 

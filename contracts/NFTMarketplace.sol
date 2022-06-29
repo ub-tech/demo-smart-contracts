@@ -10,6 +10,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import "hardhat/console.sol";
 
+
 contract NFTMarketplace is ReentrancyGuard {
   // We allow only this contract addrss to deposit
    IERC721 public NFTContract;
@@ -32,8 +33,7 @@ contract NFTMarketplace is ReentrancyGuard {
    }
   // Mapping of token id and market items
   mapping(uint256 => MarketItem) private marketItems;
-  // Listed Item Count
-  uint256 public listedItems;
+ 
 
   // EVENTS
    event MarketItemListed (
@@ -68,11 +68,11 @@ contract NFTMarketplace is ReentrancyGuard {
     require(_price > 0, "Price Must be atleast 1 wei");
     require(msg.sender != address(0), "Address should be an user");
     require(NFTContract.getApproved(_tokenId) == address(this),"NFT Must be approved to list in the market");
+   
     uint256 id = _itemCounter.current();
     marketItems[id] = MarketItem(id, _tokenId, msg.sender, address(this), _price, State.Listed);
     //Transfer token to reciver
-    //Increase items count
-    listedItems++;
+   
     _itemCounter.increment();
 
     //Emits the listed
@@ -97,20 +97,24 @@ contract NFTMarketplace is ReentrancyGuard {
 
     require(NFTContract.getApproved(tokenId) == address(this),"NFT Must be approved to list in the market");
     // Require to transfer the tokens to
-    require(SUSDC.allowance(msg.sender, item.seller) >= price,"Insuficient Allowance");
+    // Tokens should be approved to the NFTMarketplace address so that 
+    // The marketplace contract can transfer tokens to the seller
+    require(SUSDC.allowance(msg.sender, address(this)) >= price,"Insuficient Allowance");
     require(SUSDC.transferFrom(msg.sender,item.seller,price),"transfer Failed");
     NFTContract.transferFrom(item.seller, msg.sender, tokenId);
 
     item.owner = msg.sender;
     item.state = State.Sold;
-   emit MarketItemSold(
-      _id,
-      tokenId,
-      item.seller,
-      msg.sender,
-      price,
-      item.state
-    );
+    // Deletes the market item after it soldout
+    delete marketItems[tokenId];
+    emit MarketItemSold(
+        _id,
+        tokenId,
+        item.seller,
+        msg.sender,
+        price,
+        item.state
+        );
 
   }
 
@@ -122,7 +126,10 @@ contract NFTMarketplace is ReentrancyGuard {
     // For the item arry index
     uint index = 0;
     for(uint i = 1; i <= total ; i++){
-      items[index] = marketItems[i];
+      if(marketItems[i].marketId > 0){
+         items[index] = marketItems[i];
+      }
+     
       index++;
     }
 
